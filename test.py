@@ -11,16 +11,16 @@ sys.setdefaultencoding('utf-8')
 
 def read_file(name):
     with open(name, "r") as f:  # 打开文件
-    data = f.read()  # 读取文件
+        data = f.read()  # 读取文件
     return data
 
 def merge_ts(url):
-    download_path = os.getcwd() + "\download"
-    if not os.path.exists(download_path):
-        os.mkdir(download_path)
+    download_path = os.getcwd() + "/download"
+    if os.path.exists(download_path):
+        os.removedirs(download_path)
         
     #新建日期文件夹
-    download_path = os.path.join(download_path, datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
+    #download_path = os.path.join(download_path, datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
     #print download_path
     os.mkdir(download_path)
         
@@ -53,13 +53,17 @@ def merge_ts(url):
             pd_url = url.rsplit("/", 1)[0] + "/" + file_line[index + 1] # 拼出ts片段的URL
             #print pd_url
             
-            res = requests.get(pd_url)
+            res = read_file(pd_url)
             c_fule_name = file_line[index + 1].rsplit("/", 1)[-1]
-            
+            print len(key)
             if len(key): # AES 解密
-                cryptor = AES.new(key, AES.MODE_CBC, key)  
+                cryptor = AES.new(key, AES.MODE_EAX, key)
                 with open(os.path.join(download_path, c_fule_name + ".mp4"), 'ab') as f:
-                    f.write(cryptor.decrypt(res.content))
+                    print res
+                    f.write(cryptor.decrypt(res))
+                # with open(os.path.join(download_path, c_fule_name), 'ab') as f:
+                #     print res
+                #     f.write(cryptor.decrypt(res))
             else:
                 with open(os.path.join(download_path, c_fule_name), 'ab') as f:
                     f.write(res.content)
@@ -79,5 +83,5 @@ def merge_file(path):
     os.rename("new.tmp", "new.mp4")
     
 if __name__ == '__main__': 
-    url = "./5f913e952b2f9eba82a7464c1c29f72f_2" 
-    merge_ts(_url)
+    url = "./5f913e952b2f9eba82a7464c1c29f72f_2/5f913e952b2f9eba82a7464c1c29f72f_2.m3u8"
+    merge_ts(url)
